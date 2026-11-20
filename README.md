@@ -10,6 +10,8 @@ A Rust client for a remittance stablecoin ("Remit USD", rUSD) built entirely fro
 
 **30 tests pass** with LiteSVM against the Token-2022 binary deployed on mainnet (program@v11.1.0). Full output: [`test-output.txt`](test-output.txt).
 
+![All tests passing](screenshots/tests-passing.png)
+
 ## Where this runs, and why not on devnet (checked 20 Nov 2026)
 
 Confidential transfers depend on the **ZK ElGamal proof program**, and today it is switched off on the public clusters:
