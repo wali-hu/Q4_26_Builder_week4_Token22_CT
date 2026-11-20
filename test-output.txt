@@ -1,0 +1,63 @@
+     Running unittests src/lib.rs (target/debug/deps/token22_ct-c8f467ac74eb65e3)
+running 0 tests
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+     Running tests/probe.rs (target/debug/deps/probe-38c52e6fe336b5e4)
+running 1 test
+test zk_elgamal_proof_program_works_in_litesvm ... ok
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.27s
+     Running tests/sizes.rs (target/debug/deps/sizes-396ee25765f38a93)
+running 1 test
+test sizes_of_every_account_and_proof ... ok
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.71s
+     Running tests/task1_mint.rs (target/debug/deps/task1_mint-2e8549a1501b0aad)
+running 4 tests
+test task1_account_too_small_for_the_extensions_fails ... ok
+test task1_close_authority_closes_mint_only_with_zero_supply ... ok
+test task1_extension_init_after_initialize_mint_fails ... ok
+test task1_mint_has_four_extensions_and_metadata_in_one_transaction ... ok
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.70s
+     Running tests/task2_fee.rs (target/debug/deps/task2_fee-fcb82c650345903b)
+running 5 tests
+test task2_fee_is_capped_at_the_maximum ... ok
+test task2_fee_change_applies_two_epochs_later_so_a_cached_rate_is_wrong ... ok
+test task2_transfer_charges_the_epoch_fee_and_withholds_it_at_the_destination ... ok
+test task2_issuer_harvests_and_withdraws_the_withheld_fees ... ok
+test task2_wrong_fee_fails_fee_mismatch ... ok
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.17s
+     Running tests/task3_read.rs (target/debug/deps/task3_read-13573f306afd0bee)
+running 2 tests
+test task3_raw_unpack_fails_on_a_token2022_mint_but_state_with_extensions_works ... ok
+test task3_account_view_lists_extensions_added_by_the_ata_program ... ok
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.36s
+     Running tests/task4_kyc.rs (target/debug/deps/task4_kyc-154d28c48df4559f)
+running 5 tests
+test task4_frozen_account_cannot_receive_fails_account_frozen ... ok
+test task4_frozen_account_cannot_send_fails_account_frozen ... ok
+test task4_new_accounts_start_frozen ... ok
+test task4_kyc_thaw_unfreezes_one_account_and_keeps_the_default_frozen ... ok
+test task4_only_the_freeze_authority_can_thaw_fails_owner_mismatch ... ok
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.00s
+     Running tests/task5_6_confidential.rs (target/debug/deps/task5_6_confidential-d790649709b70bab)
+running 5 tests
+test task5_reissued_mint_has_the_same_extensions_plus_permanent_delegate_and_manual_ct ... ok
+test task6_configure_is_owner_only_while_ata_creation_is_open_to_anyone ... ok
+test task6_unapproved_account_cannot_deposit_fails_not_approved ... ok
+test task6_withdraw_before_apply_pending_fails ... ok
+test task6_full_confidential_lifecycle_with_fee_and_auditor ... ok
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 21.50s
+     Running tests/task7_8_seizure.rs (target/debug/deps/task7_8_seizure-e6b6e6dc6eb9e874)
+running 4 tests
+test task7_permanent_delegate_seizes_a_public_balance ... ok
+test task7_delegate_cannot_move_from_a_frozen_account_unless_thaw_and_refreeze_in_one_tx ... ok
+test task8_funds_moved_into_the_confidential_balance_escape_the_permanent_delegate ... ok
+test task8_freezing_locks_the_confidential_balance_but_does_not_seize_it ... ok
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 16.16s
+     Running tests/zk_program_status.rs (target/debug/deps/zk_program_status-1216f08952422fdf)
+running 3 tests
+test zk_proof_program_is_disabled_with_todays_devnet_feature_set ... ok
+test zk_proof_program_runs_when_reenable_feature_is_active ... ok
+test litesvm_bundled_token2022_lacks_zk_ops_but_the_deployed_program_has_it ... ok
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.68s
+   Doc-tests token22_ct
+running 0 tests
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
