@@ -11,6 +11,10 @@ use {
     solana_pubkey::Pubkey,
 };
 
+/// Token-2022 as deployed on mainnet-beta, dumped with
+/// `solana program dump TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb ... --url mainnet-beta`.
+pub const MAINNET_TOKEN_2022: &[u8] = include_bytes!("../programs/token_2022_mainnet_2026-11-20.so");
+
 pub struct Env {
     pub svm: LiteSVM,
 }
@@ -22,11 +26,42 @@ impl Default for Env {
 }
 
 impl Env {
-    /// LiteSVM with every feature enabled. That includes BOTH
-    /// `disable_zk_elgamal_proof_program` and `reenable_zk_elgamal_proof_program`,
-    /// so the ZK ElGamal proof program runs here (it does not on devnet or mainnet).
+    /// LiteSVM with every feature enabled (that includes BOTH
+    /// `disable_zk_elgamal_proof_program` and `reenable_zk_elgamal_proof_program`, so the
+    /// ZK ElGamal proof program runs here; on devnet and mainnet it does not).
+    ///
+    /// The Token-2022 program is the binary deployed on mainnet (program@v11.1.0, dumped
+    /// on 20 Nov 2026), not LiteSVM's bundled v10.0.0, which was built without the
+    /// `zk-ops` feature and refuses Deposit, Withdraw, Transfer and ApplyPendingBalance.
     pub fn new() -> Self {
+        let mut svm = LiteSVM::new();
+        svm.add_program(spl_token_2022_interface::id(), MAINNET_TOKEN_2022).unwrap();
+        Self { svm }
+    }
+
+    /// LiteSVM exactly as shipped: its bundled Token-2022 v10.0.0 binary.
+    pub fn with_bundled_token2022() -> Self {
         Self { svm: LiteSVM::new() }
+    }
+
+    /// Same as `new`, but with the ZK ElGamal feature pair set the way devnet and
+    /// mainnet have it today: `disable_zk_elgamal_proof_program` active and
+    /// `reenable_zk_elgamal_proof_program` NOT active. Builtins are loaded after the
+    /// feature set, so the proof program sees these flags.
+    pub fn with_devnet_zk_features() -> Self {
+        let mut features = agave_feature_set::FeatureSet::all_enabled();
+        features.deactivate(&agave_feature_set::reenable_zk_elgamal_proof_program::id());
+        let svm = LiteSVM::default()
+            .with_feature_set(features)
+            .with_builtins()
+            .with_lamports(1_000_000_000_000_000_000)
+            .with_sysvars()
+            .with_default_programs()
+            .with_sigverify(true)
+            .with_blockhash_check(true);
+        let mut env = Self { svm };
+        env.svm.add_program(spl_token_2022_interface::id(), MAINNET_TOKEN_2022).unwrap();
+        env
     }
 
     /// A new wallet with 100 SOL.
