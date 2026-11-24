@@ -8,7 +8,7 @@ A Rust client for a remittance stablecoin ("Remit USD", rUSD) built entirely fro
 - a **close authority** to decommission the mint,
 - then a re-issued mint that adds **confidential transfers** (hidden amounts) and a **permanent delegate** (seizure), plus a test-backed answer to what happens when the two collide.
 
-**30 tests pass** with LiteSVM against the Token-2022 binary deployed on mainnet (program@v11.1.0). Full output: [`test-output.txt`](test-output.txt).
+**30 tests pass** with LiteSVM against the Token-2022 binary deployed on mainnet (program@v11.1.0), plus **7 tests** for the optional CPI Guard extension in `agent-program/`. Full output: [`test-output.txt`](test-output.txt) and [`agent-program/test-output.txt`](agent-program/test-output.txt).
 
 ![All tests passing](screenshots/tests-passing.png)
 
@@ -34,6 +34,9 @@ So everything runs in **LiteSVM**, which activates every feature, including the 
 ```bash
 cargo test                      # all tests, LiteSVM, about 1 minute after the first build
 cargo test --test task5_6_confidential -- --nocapture
+
+# optional extension (Anchor 1.1.2 program)
+cd agent-program && anchor build && cargo test
 ```
 
 No validator, no devnet transactions, no keypair files.
@@ -196,9 +199,22 @@ The delegate signs a `transfer_checked_with_fee` from the sanctioned account to 
 | `zk_program_status.rs` (3) | proof program disabled with devnet features; enabled in LiteSVM; bundled v10.0.0 lacks zk-ops, mainnet v11.1.0 has it |
 | `probe.rs`, `sizes.rs` (2) | first proof check; prints every size in this README |
 
-## Not done
+## Task 9 (optional extension): an agent program and CPI Guard
 
-The optional extension (an Anchor program acting through an `Approve` delegate, then CPI Guard) is not included.
+`agent-program/` is an Anchor 1.1.2 program for the "agent / automation" pattern: the user grants an allowance to the program's PDA with `Approve`, and an operator the program trusts triggers `delegated_transfer`, where the PDA signs a `transfer_checked` CPI as the **delegate**. The user signs nothing at execution time.
+
+| Instruction | Signer | What it does |
+|---|---|---|
+| `initialize(operator)` | payer | stores the only wallet allowed to run the agent (PDA `["config"]`) |
+| `delegated_transfer(amount)` | operator | agent PDA `["agent"]` signs the CPI as delegate (`has_one = operator`, else 2001) |
+| `owner_transfer_via_cpi(amount)` | owner | for comparison: the program forwards the OWNER's signature in a CPI |
+| `approve_via_cpi(amount)` | owner | for comparison: the program sets up the delegation in a CPI |
+
+**What CPI Guard actually blocks** (Token-2022 v11.1.0 `processor.rs`, then tested): with `lock_cpi` on and the call coming from a CPI, a transfer or burn is refused **only when the authority is the account owner** (`CpiGuardTransferBlocked`, 42), and **every** `Approve` is refused (`CpiGuardApproveBlocked`, 45). Set-authority, close, unwrap-lamports and withdraw-excess-lamports are also blocked in CPIs.
+
+**Result:** the task's claim holds. After the user enables CPI Guard, the delegated path keeps working **unmodified** (the PDA signs as delegate, not as owner). What breaks is a program forwarding the owner's own signature, and a program creating the approval: the user must sign `Approve` directly (top-level), which still works with the guard on.
+
+Tests (`agent-program/programs/agent/tests/task9_cpi_guard.rs`, mainnet Token-2022 binary): agent spends the allowance; delegated path works after enabling CPI Guard; owner-signed transfer through a CPI works without the guard and fails with the guard (42); approve through a CPI fails (45) while a direct approve works; agent cannot exceed the allowance (`InsufficientFunds`, 1); revoke stops the agent (`OwnerMismatch`, 4); only the operator can run it (2001).
 
 ## Security notes
 
